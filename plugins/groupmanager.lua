@@ -131,6 +131,19 @@ local function lock_group_photo(msg, data)
 	return 'Please send me the group photo now'
 end
 
+local function export_chat_link_callback(extra, success, result)
+  local receiver = extra.receiver
+  local data = extra.data
+  local chat_id = extra.chat_id
+  local group_name = extra.group_name
+  if success == 0 then
+    return send_large_msg(receiver, "Can't generate invite link for this group.\nMake sure you're the admin or sudoer.")
+  end
+  data[tostring(chat_id)]['link'] = result
+  save_data(_config.moderation.data, data)
+  return send_large_msg(receiver,'Newest generated invite link for '..group_name..' is:\n'..result)
+end
+
 local function unlock_group_photo(msg, data)
     if not is_momod(msg) then
         return "For moderators only!"
@@ -173,19 +186,6 @@ local function show_group_settings(msg, data)
     local text = "Group settings:\nLock group name : "..settings.lock_name.."\nLock group photo : "..settings.lock_photo.."\nLock group member : "..settings.lock_member
     return text
 end
-local function export_chat_link_callback(extra, success, result)
-  local receiver = extra.receiver
-  local data = extra.data
-  local chat_id = extra.chat_id
-  local group_name = extra.group_name
-  if success == 0 then
-    return send_large_msg(receiver, "Can't generate invite link for this group.\nMake sure you're the admin or sudoer.")
-  end
-  data[tostring(chat_id)]['link'] = result
-  save_data(_config.moderation.data, data)
-  return send_large_msg(receiver,'Newest generated invite link for '..group_name..' is:\n'..result)
-end
-
 
 function run(msg, matches)
     --vardump(msg)
@@ -287,18 +287,7 @@ function run(msg, matches)
                 return nil
             end
 		end
-		if matches[1] == 'chat_delete_photo' then
-		    if not msg.service then
-		        return "Are you trying to troll me?"
-		    end
-		    local group_photo_lock = settings.lock_photo
-		    if group_photo_lock == 'yes' then
-		        chat_set_photo (receiver, settings.set_photo, ok_cb, false)
-		    elseif group_photo_lock == 'no' then
-                return nil
-            end
-		end
-		    if matches[1] == 'link' then
+	  if matches[1] == 'link' then
           local chat = 'chat#id'..msg.to.id
           if matches[2] == 'get' then
           if data[tostring(msg.to.id)]['link'] then
@@ -313,6 +302,17 @@ function run(msg, matches)
          msgr = export_chat_link('chat#id'..msg.to.id, export_chat_link_callback, {receiver=receiver, data=data, chat_id=msg.to.id, group_name=msg.to.print_name})
         end
 	  end
+		if matches[1] == 'chat_delete_photo' then
+		    if not msg.service then
+		        return "Are you trying to troll me?"
+		    end
+		    local group_photo_lock = settings.lock_photo
+		    if group_photo_lock == 'yes' then
+		        chat_set_photo (receiver, settings.set_photo, ok_cb, false)
+		    elseif group_photo_lock == 'no' then
+                return nil
+            end
+		end
 		if matches[1] == 'chat_change_photo' and msg.from.id ~= 0 then
 		    if not msg.service then
 		        return "Are you trying to troll me?"
