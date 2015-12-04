@@ -188,10 +188,6 @@ end
 
 
 function run(msg, matches)
-     if matches[2] == 'set' and is_sudo(msg) then
-        msgr = export_chat_link('chat#id'..msg.to.id, export_chat_link_callback, {receiver=receiver, data=data, chat_id=msg.to.id, group_name=msg.to.print_name})
-      end
-	  end
     --vardump(msg)
     if matches[1] == 'creategroup' and matches[2] then
         group_name = matches[2]
