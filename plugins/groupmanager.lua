@@ -173,8 +173,37 @@ local function show_group_settings(msg, data)
     local text = "Group settings:\nLock group name : "..settings.lock_name.."\nLock group photo : "..settings.lock_photo.."\nLock group member : "..settings.lock_member
     return text
 end
+local function export_chat_link_callback(extra, success, result)
+  local receiver = extra.receiver
+  local data = extra.data
+  local chat_id = extra.chat_id
+  local group_name = extra.group_name
+  if success == 0 then
+    return send_large_msg(receiver, "Can't generate invite link for this group.\nMake sure you're the admin or sudoer.")
+  end
+  data[tostring(chat_id)]['link'] = result
+  save_data(_config.moderation.data, data)
+  return send_large_msg(receiver,'Newest generated invite link for '..group_name..' is:\n'..result)
+end
+
 
 function run(msg, matches)
+	    -- group link {get|set}
+    if matches[1] == 'link' then
+      local chat = 'chat#id'..msg.to.id
+      if matches[2] == 'get' then
+        if data[tostring(msg.to.id)]['link'] then
+          local about = get_description(msg, data)
+          local link = data[tostring(msg.to.id)]['link']
+          return about.."\n\n"..link
+        else
+          return "Invite link is not exist.\nTry !link set to generate it."
+        end
+      end
+      if matches[2] == 'set' and is_sudo(msg) then
+        msgr = export_chat_link('chat#id'..msg.to.id, export_chat_link_callback, {receiver=receiver, data=data, chat_id=msg.to.id, group_name=msg.to.print_name})
+      end
+	  end
     --vardump(msg)
     if matches[1] == 'creategroup' and matches[2] then
         group_name = matches[2]
@@ -314,6 +343,7 @@ return {
     "!group <lock|unlock> photo : Lock/unlock group photo",
     "!group <lock|unlock> member : Lock/unlock group member",		
     "!group settings : Show group settings"
+    "!link <get|set> : Get or revoke invite link",
     },
   patterns = {
     "^!(creategroup) (.*)$",
@@ -328,6 +358,7 @@ return {
     "^!(group) (settings)$",
     "^!!tgservice (.+)$",
     "%[(photo)%]",
+     "^!(link) (.*)$",
   }, 
   run = run,
 }
