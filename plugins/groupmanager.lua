@@ -131,19 +131,6 @@ local function lock_group_photo(msg, data)
 	return 'Please send me the group photo now'
 end
 
-local function export_chat_link_callback(extra, success, result)
-  local receiver = extra.receiver
-  local data = extra.data
-  local chat_id = extra.chat_id
-  local group_name = extra.group_name
-  if success == 0 then
-    return send_large_msg(receiver, "Can't generate invite link for this group.\nMake sure you're the admin or sudoer.")
-  end
-  data[tostring(chat_id)]['link'] = result
-  save_data(_config.moderation.data, data)
-  return send_large_msg(receiver,'Newest generated invite link for '..group_name..' is:\n'..result)
-end
-
 local function unlock_group_photo(msg, data)
     if not is_momod(msg) then
         return "For moderators only!"
@@ -287,21 +274,6 @@ function run(msg, matches)
                 return nil
             end
 		end
-	  if matches[1] == 'link' then
-          local chat = 'chat#id'..msg.to.id
-          if matches[2] == 'get' then
-          if data[tostring(msg.to.id)]['link'] then
-          local about = get_description(msg, data)
-          local link = data[tostring(msg.to.id)]['link']
-          return about.."\n\n"..link
-          else
-           return "Invite link is not exist.\nTry !link set to generate it."
-          end
-         end
-          if matches[2] == 'set' and is_sudo(msg) then
-         msgr = export_chat_link('chat#id'..msg.to.id, export_chat_link_callback, {receiver=receiver, data=data, chat_id=msg.to.id, group_name=msg.to.print_name})
-        end
-	  end
 		if matches[1] == 'chat_delete_photo' then
 		    if not msg.service then
 		        return "Are you trying to troll me?"
@@ -342,7 +314,6 @@ return {
     "!group <lock|unlock> photo : Lock/unlock group photo",
     "!group <lock|unlock> member : Lock/unlock group member",		
     "!group settings : Show group settings"
-    "!link <get|set> : Get or revoke invite link",
     },
   patterns = {
     "^!(creategroup) (.*)$",
@@ -355,7 +326,6 @@ return {
     "^!(group) (lock) (.*)$",
     "^!(group) (unlock) (.*)$",
     "^!(group) (settings)$",
-    "^!(link) (.*)$",
     "^!!tgservice (.+)$",
     "%[(photo)%]",
   }, 
