@@ -77,7 +77,7 @@ install_rocks() {
 install() {
   git pull
   git submodule update --init --recursive
-  +  patch -i "lua-tg.get_message.block_user.res_user.export_chat_link.patch" -p 0 --batch --forward
+  patch -i "lua-tg.get_message.block_user.res_user.export_chat_link.patch" -p 0 --batch --forward
   cd tg && ./configure && make
   
   RET=$?; if [ $RET -ne 0 ]; then
