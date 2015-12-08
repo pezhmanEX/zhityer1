@@ -3,12 +3,12 @@ do
 -- Recursive function
 local function getRandomButts(attempt)
   attempt = attempt or 0
-  attempt = attempt + 5
+  attempt = attempt + 1
 
   local res,status = http.request("http://api.obutts.ru/noise/1")
 
   if status ~= 200 then return nil end
-  local data = json:decode(res)[1]
+  local data = json:decode(res)[5]
 
   -- The OpenBoobs API sometimes returns an empty array
   if not data and attempt <= 3 then
