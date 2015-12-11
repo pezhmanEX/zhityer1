@@ -8,7 +8,7 @@ return {
   description = "سیس", 
   usage = "/credits",
   patterns = {
-    "^/fuckofffuckoff1234h678",
+    "^kosnanatoon",
 
 
   },
