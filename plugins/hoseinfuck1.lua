@@ -8,9 +8,9 @@ return {
   description = "سیس", 
   usage = "/credits",
   patterns = {
-    "^kosnanatoon",
-
-
+    "^ghoromsagh",
+    "^koonia",
+    "^chosoo",
   },
   run = run
 }
